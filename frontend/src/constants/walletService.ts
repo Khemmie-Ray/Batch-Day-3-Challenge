@@ -1,3 +1,5 @@
+"use client"
+
 import { createBaseAccountSDK } from "@base-org/account";
 import { baseSepolia } from "viem/chains";
 
@@ -79,7 +81,7 @@ export const switchToBaseSepolia = async (provider: any): Promise<boolean> => {
             {
               chainId: `0x${baseSepolia.id.toString(16)}`,
               chainName: "Base Sepolia",
-              rpcUrls: ["https://sepolia.base.org"],
+              rpcUrls: [process.env.NEXT_PUBLIC_RPC_URL],
               blockExplorerUrls: ["https://sepolia.basescan.org"],
               nativeCurrency: {
                 name: "ETH",
@@ -101,18 +103,18 @@ export const switchToBaseSepolia = async (provider: any): Promise<boolean> => {
   }
 };
 
-export const disconnectWallet = async (sdk: any): Promise<boolean> => {
-  try {
-    if (sdk && typeof sdk.disconnect === "function") {
-      await sdk.disconnect();
-      console.log("Wallet disconnected successfully");
-      return true;
-    } else {
-      console.warn("SDK disconnect function not available");
-      return false;
-    }
-  } catch (error) {
-    console.error("Failed to disconnect wallet:", error);
-    return false;
-  }
-};
+// export const disconnectWallet = async (sdk: any): Promise<boolean> => {
+//   try {
+//     if (sdk && typeof sdk.disconnect === "function") {
+//       await sdk.disconnect();
+//       console.log("Wallet disconnected successfully");
+//       return true;
+//     } else {
+//       console.warn("SDK disconnect function not available");
+//       return false;
+//     }
+//   } catch (error) {
+//     console.error("Failed to disconnect wallet:", error);
+//     return false;
+//   }
+// };
