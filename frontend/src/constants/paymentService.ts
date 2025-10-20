@@ -1,13 +1,13 @@
 "use client"
 
+import { createBaseAccountSDK, getCryptoKeyAccount, base } from "@base-org/account";
 import { numberToHex, encodeFunctionData } from "viem";
 import { baseAccountSdk } from "./walletService";
-import { getCryptoKeyAccount, base } from "@base-org/account";
 
 const joinEcho_Abi = [
   {
     type: "function",
-    name: "joinEchoList", // ✅ match your actual contract name exactly
+    name: "joinEchoList",
     inputs: [{ name: "_username", type: "string", internalType: "string" }],
     outputs: [],
     stateMutability: "nonpayable",
@@ -15,22 +15,15 @@ const joinEcho_Abi = [
 ];
 
 export const handleTransaction = async (username: string) => {
-  const sdk = baseAccountSdk();
-  const provider = sdk?.getProvider() as {
-    request: (args: { method: string; params?: any[] }) => Promise<any>;
-  };
-
-  if (!provider) {
-    throw new Error("No provider found");
-  }
+  const sdk:any = baseAccountSdk();
+  const provider = sdk.getProvider();
 
   try {
-    // Get the user's account
     const cryptoAccount = await getCryptoKeyAccount();
     const fromAddress = cryptoAccount?.account?.address;
 
     if (!fromAddress) {
-      throw new Error("No account found");
+      throw new Error("No Base account found — user may not be signed in");
     }
 
     const paymasterServiceUrl = process.env.NEXT_PUBLIC_PAYMASTER_URL;
@@ -40,7 +33,6 @@ export const handleTransaction = async (username: string) => {
       throw new Error("Contract address missing in environment variables");
     }
 
-    // Prepare the transaction
     const calls = [
       {
         to: echoAddress,
@@ -48,12 +40,11 @@ export const handleTransaction = async (username: string) => {
         data: encodeFunctionData({
           abi: joinEcho_Abi,
           functionName: "joinEchoList",
-          args: [username],
+          args: [username], 
         }),
       },
     ];
 
-    // Send the transaction with Paymaster sponsorship
     const result = await provider.request({
       method: "wallet_sendCalls",
       params: [
@@ -78,6 +69,7 @@ export const handleTransaction = async (username: string) => {
     throw error;
   }
 };
+
 
 export const checkPaymasterSupport = async (): Promise<boolean> => {
   const sdk = baseAccountSdk();
